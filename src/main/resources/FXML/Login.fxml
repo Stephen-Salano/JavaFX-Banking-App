@@ -10,24 +10,19 @@
 <?import javafx.scene.layout.VBox?>
 <?import javafx.scene.text.Text?>
 
-
-<AnchorPane prefHeight="400.0" prefWidth="600.0" styleClass="login_container" stylesheets="@../Styles/login.css"
-            xmlns="http://javafx.com/javafx/23.0.1" xmlns:fx="http://javafx.com/fxml/1"
-            fx:controller="com.devs.mazebank.Controllers.LoginController">
-   <VBox prefHeight="400.0" prefWidth="200.0" styleClass="login_logo_container" AnchorPane.bottomAnchor="0.0"
-         AnchorPane.leftAnchor="0.0" AnchorPane.topAnchor="0.0">
-      <FontAwesomeIconView glyphName="BANK" size="30"/>
-      <Text strokeType="OUTSIDE" strokeWidth="0.0" text="Maze Bank"/>
+<AnchorPane prefHeight="400.0" prefWidth="600.0" styleClass="login_container" stylesheets="@../Styles/login.css" xmlns="http://javafx.com/javafx/23.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.devs.mazebank.Controllers.LoginController">
+   <VBox prefHeight="400.0" prefWidth="200.0" styleClass="login_logo_container" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.topAnchor="0.0">
+      <FontAwesomeIconView glyphName="BANK" size="30" />
+      <Text strokeType="OUTSIDE" strokeWidth="0.0" text="Maze Bank" />
    </VBox>
-   <VBox layoutX="317.0" layoutY="14.0" prefHeight="350.0" prefWidth="350.0" styleClass="login_form_container"
-         AnchorPane.rightAnchor="20.0" AnchorPane.topAnchor="20.0">
-      <Label id="choice-prompt-text" text="Choose Account Type"/>
-      <ChoiceBox fx:id="account_selector" prefWidth="150.0" styleClass="account_selector"/>
-      <Label fx:id="payee_address_lbl" text="Payee Address"/>
-      <TextField fx:id="payee_adress_field"/>
-      <Label fx:id="password_lbl" text="Password"/>
-      <PasswordField fx:id="password_field"/>
-      <Button fx:id="login_btn" mnemonicParsing="false" text="Button"/>
-      <Label fx:id="error_lbl" styleClass="error_lbl" text="Error:"/>
+   <VBox layoutX="317.0" layoutY="14.0" prefHeight="350.0" prefWidth="350.0" styleClass="login_form_container" AnchorPane.rightAnchor="20.0" AnchorPane.topAnchor="20.0">
+      <Label id="choice-prompt-text" text="Choose Account Type" />
+      <ChoiceBox fx:id="account_selector" prefWidth="150.0" styleClass="account_selector" />
+      <Label fx:id="payee_address_lbl" text="Payee Address" />
+      <TextField fx:id="payee_adress_field" />
+      <Label fx:id="password_lbl" text="Password" />
+      <PasswordField fx:id="password_field" />
+      <Button fx:id="login_btn" mnemonicParsing="false" text="Button" />
+      <Label fx:id="error_lbl" styleClass="error_lbl" text="Error:" />
    </VBox>
 </AnchorPane>
