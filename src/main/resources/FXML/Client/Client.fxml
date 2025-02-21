@@ -3,9 +3,16 @@
 
 <?import javafx.scene.layout.*?>
 
-<AnchorPane xmlns="http://javafx.com/javafx"
-            xmlns:fx="http://javafx.com/fxml"
-            fx:controller="com.devs.mazebank.Controllers.Client.ClientController"
-            prefHeight="400.0" prefWidth="600.0">
+<BorderPane xmlns="http://javafx.com/javafx"
+            xmlns:fx="http://javafx.com/fxml">
+    <!-- This is how we combined the left sidebar and main area on dashboard -->
+    <left>
+        <fx:include source="ClientMenu.fxml "/>
+    </left>
 
-</AnchorPane>
+    <center>
+        <fx:include source="Dashboard.fxml"/>
+    </center>
+
+
+</BorderPane>
