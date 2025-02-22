@@ -10,6 +10,8 @@ import javafx.stage.Stage;
 public class ViewFactory {
     // Client viewws
     private AnchorPane dashboardView;
+    private AnchorPane transactionsView;
+
     public ViewFactory(){
 
     }
@@ -59,9 +61,20 @@ public class ViewFactory {
     }
 
     private static Scene createStage() {
-        Scene scene = null;
-        return scene;
+        return null;
     }
+
+    public AnchorPane getTransactionsView() {
+        if (transactionsView == null) {
+            try{
+                transactionsView = new FXMLLoader(getClass().getResource("/FXML/Client/Transactions.fxml")).load();
+            } catch (Exception e){
+                e.printStackTrace();
+            }
+        }
+        return transactionsView;
+    }
+    // TODO If client window is closed bring pop up asking if we're sure we want to close it
 
 
 }
