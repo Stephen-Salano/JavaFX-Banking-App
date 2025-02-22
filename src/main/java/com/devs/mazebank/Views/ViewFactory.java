@@ -1,19 +1,23 @@
 package com.devs.mazebank.Views;
 
 import com.devs.mazebank.Controllers.Client.ClientController;
+import javafx.beans.property.SimpleStringProperty;
+import javafx.beans.property.StringProperty;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Scene;
 import javafx.scene.layout.AnchorPane;
 import javafx.stage.Stage;
 
-/// This is a centrall class that controls the UI depending on what actions are taken
+/// This is a central class that controls the UI depending on what actions are taken
 public class ViewFactory {
-    // Client viewws
+    // Client views
     private AnchorPane dashboardView;
     private AnchorPane transactionsView;
+    private final StringProperty clientSelectedMenuItem;
 
     public ViewFactory(){
 
+        clientSelectedMenuItem = new SimpleStringProperty("");
     }
     public AnchorPane getDashboardView(){
         /*
@@ -64,15 +68,38 @@ public class ViewFactory {
         return null;
     }
 
+    /// This method is a lazy-loaded singleton getter for the AnchorPane representing the transactions view
+    /// If the view was successfully loaded, it returns the AnchorPane
+    /// If it was already loaded previously, it returns the existing instance
     public AnchorPane getTransactionsView() {
+        /*
+          Checks if the transaction view is already initialized
+          This ensures that the view is loaded only once, if it is loaded, it simply returns the existing
+          instance
+        */
+
         if (transactionsView == null) {
             try{
+                /*
+                    Load the FXML File:
+                    We use the FXMLLoader to load the Transaction.fxml file from the FXML/Client directory
+                    The `.load` method parses the FXML file and constructs te UI components, returning an Anchorpane
+                 */
                 transactionsView = new FXMLLoader(getClass().getResource("/FXML/Client/Transactions.fxml")).load();
             } catch (Exception e){
                 e.printStackTrace();
             }
         }
+        // return the loaded view
         return transactionsView;
+    }
+
+    public StringProperty getClientSelectedMenuItem() {
+        return clientSelectedMenuItem;
+    }
+
+    public StringProperty clientSelectedMenuItemProperty() {
+        return clientSelectedMenuItem;
     }
     // TODO If client window is closed bring pop up asking if we're sure we want to close it
 

@@ -3,7 +3,8 @@
 
 <?import javafx.scene.layout.*?>
 
-<BorderPane xmlns="http://javafx.com/javafx"
+<!-- To change views on client menu we first need a reference id on the border pane : fx:id ="client_parent"-->
+<BorderPane fx:id="client_parent" xmlns="http://javafx.com/javafx"
             xmlns:fx="http://javafx.com/fxml">
     <!-- This is how we combined the left sidebar and main area on dashboard -->
     <left>
