@@ -8,12 +8,15 @@ import javafx.scene.Scene;
 import javafx.scene.layout.AnchorPane;
 import javafx.stage.Stage;
 
+import java.io.IOException;
+
 /// This is a central class that controls the UI depending on what actions are taken
 public class ViewFactory {
     // Client views
     private AnchorPane dashboardView;
     private AnchorPane transactionsView;
     private final StringProperty clientSelectedMenuItem;
+    private AnchorPane accountsView;
 
     public ViewFactory(){
 
@@ -26,7 +29,7 @@ public class ViewFactory {
          */
         if (dashboardView==null){
             try{
-                dashboardView = new FXMLLoader(getClass().getResource("./FXML/Client/Dashboard.fxml")).load();
+                dashboardView = new FXMLLoader(getClass().getResource("/FXML/Client/Dashboard.fxml")).load();
             } catch (Exception e) {
                 e.printStackTrace();
             }
@@ -94,6 +97,18 @@ public class ViewFactory {
         return transactionsView;
     }
 
+    public AnchorPane getAccountsView() {
+        if (accountsView == null){
+            try{
+                accountsView = new FXMLLoader(getClass().getResource("/FXML/Client/Accounts.fxml")).load();
+            } catch (IOException e){
+                e.printStackTrace();
+            }
+        }
+        return accountsView;
+    }
+
+    /// Clients Views Section
     public StringProperty getClientSelectedMenuItem() {
         return clientSelectedMenuItem;
     }
