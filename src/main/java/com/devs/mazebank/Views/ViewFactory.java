@@ -40,7 +40,7 @@ public class ViewFactory {
         FXMLLoader loader = new FXMLLoader(getClass().getResource("/FXML/Login.fxml"));
         Scene scene = createStage();
         try{
-            scene = new  Scene(loader.  load());
+            scene = new  Scene(loader.load());
         }catch (Exception e){
             e.printStackTrace();
         }

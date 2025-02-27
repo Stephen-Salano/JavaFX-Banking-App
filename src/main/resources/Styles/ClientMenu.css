@@ -1,6 +1,7 @@
 .main_menu_container{
     -fx-background-color: #EEFFEE;
     -fx-alignment: center;
+    -fx-padding: 0 10 0 10;
 }
 
 .left_container{
