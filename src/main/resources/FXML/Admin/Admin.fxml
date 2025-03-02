@@ -1,10 +1,15 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
 <?import javafx.scene.layout.*?>
-
-<AnchorPane xmlns="http://javafx.com/javafx"
+<!-- This will combine the left admin side nav with the main area-->
+<BorderPane xmlns="http://javafx.com/javafx"
             xmlns:fx="http://javafx.com/fxml"
-            fx:controller="com.devs.mazebank.Controllers.AdminControllers.AdminController"
-            prefHeight="400.0" prefWidth="600.0">
+            fx:id="admin_parent">
+    <left>
+        <fx:include source="AdminMenu.fxml"/>
+    </left>
+    <center>
+        <fx:include source="Admin.fxml"/>
+    </center>
 
-</AnchorPane>
+</BorderPane>

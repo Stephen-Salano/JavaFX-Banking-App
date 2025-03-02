@@ -1,5 +1,6 @@
 package com.devs.mazebank.Views;
 
+import com.devs.mazebank.Controllers.AdminControllers.AdminController;
 import com.devs.mazebank.Controllers.Client.ClientController;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.property.StringProperty;
@@ -18,10 +19,19 @@ public class ViewFactory {
     private final StringProperty clientSelectedMenuItem;
     private AnchorPane accountsView;
 
+    // Admin Views
+    private final StringProperty adminSelectedMenuItem;
+    private AnchorPane createClientView;
+
+
     public ViewFactory(){
 
-        clientSelectedMenuItem = new SimpleStringProperty("");
+        this.clientSelectedMenuItem = new SimpleStringProperty("");
+        this.adminSelectedMenuItem = new SimpleStringProperty("");
     }
+
+    ///  Client Sections :
+
     public AnchorPane getDashboardView(){
         /*
         The reason we have the if check is so that everytime we want to switch from one view
@@ -36,39 +46,14 @@ public class ViewFactory {
         }
         return dashboardView;
     }
-    public void showLoginWindow(){
-        FXMLLoader loader = new FXMLLoader(getClass().getResource("/FXML/Login.fxml"));
-        Scene scene = createStage();
-        try{
-            scene = new  Scene(loader.load());
-        }catch (Exception e){
-            e.printStackTrace();
-        }
-        Stage stage = new Stage();
-        stage.setScene(scene);
-        stage.setTitle("Maze bank");
-        stage.show();
-    }
 
     public void showClientWindow(){
         FXMLLoader loader = new FXMLLoader(getClass().getResource("/FXML/Client/Client.fxml"));
         // Adding the client controller  manually
         ClientController clientController = new ClientController();
         loader.setController(clientController);
-        Scene scene = createStage();
-        try{
-            scene = new  Scene(loader.load());
-        }catch (Exception e){
-            e.printStackTrace();
-        }
-        Stage stage = new Stage();
-        stage.setScene(scene);
-        stage.setTitle("Maze bank");
-        stage.show();
-    }
+        createStage(loader);
 
-    private static Scene createStage() {
-        return null;
     }
 
     /// This method is a lazy-loaded singleton getter for the AnchorPane representing the transactions view
@@ -108,7 +93,6 @@ public class ViewFactory {
         return accountsView;
     }
 
-    /// Clients Views Section
     public StringProperty getClientSelectedMenuItem() {
         return clientSelectedMenuItem;
     }
@@ -116,7 +100,66 @@ public class ViewFactory {
     public StringProperty clientSelectedMenuItemProperty() {
         return clientSelectedMenuItem;
     }
+
     // TODO If client window is closed bring pop up asking if we're sure we want to close it
+
+
+    ///  Admin Sections
+
+    public AnchorPane getCreateClientView() {
+        if (createClientView == null) {
+            try {
+                createClientView = new FXMLLoader(getClass().getResource("/FXML/Admin/CreateClient.fxml")).load();
+            } catch (Exception e){
+                e.printStackTrace();
+            }
+        }
+        return createClientView;
+    }
+
+    public void showAdminWindow(){
+        ///  Load the FXML
+        FXMLLoader loader = new FXMLLoader(getClass().getResource("/FXML/Admin/Admin.fxml"));
+        ///  Create new controller
+        AdminController adminController = new AdminController();
+        ///  Set controller manually to it's FXML counterpart
+        loader.setController(adminController);
+        ///  Call the method to load that FXML to a scene and display it
+        createStage(loader);
+    }
+
+    public StringProperty getAdminSelectedMenuItem() {
+        return adminSelectedMenuItem;
+    }
+
+    public StringProperty adminSelectedMenuItemProperty() {
+        return adminSelectedMenuItem;
+    }
+
+    ///  First Window displayed
+    public void showLoginWindow(){
+        /// loading the FXMl resource
+        FXMLLoader loginLoader = new FXMLLoader(getClass().getResource("/FXML/login.fxml"));
+        ///  calling the method that will set our FXML resource to a scene and stage and display it
+        createStage(loginLoader);
+    }
+
+    ///  Loading Window
+    ///  This method will take and fxml loaded scene and set it to a new scene and create a new
+    ///  stage and display the window
+    private static Scene createStage(FXMLLoader loader) {
+        Scene scene = null;
+        try{
+            scene = new  Scene(loader.load());
+        }catch (Exception e){
+            e.printStackTrace();
+        }
+        Stage stage = new Stage();
+        stage.setScene(scene);
+        stage.setTitle("Maze bank");
+        stage.show();
+        return scene;
+    }
 
 
 }
