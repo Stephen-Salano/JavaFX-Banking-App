@@ -2,14 +2,14 @@
 
 <?import javafx.scene.layout.*?>
 <!-- This will combine the left admin side nav with the main area-->
-<BorderPane xmlns="http://javafx.com/javafx"
+<BorderPane fx:id="admin_parent" xmlns="http://javafx.com/javafx"
             xmlns:fx="http://javafx.com/fxml"
-            fx:id="admin_parent">
+            >
     <left>
         <fx:include source="AdminMenu.fxml"/>
     </left>
     <center>
-        <fx:include source="Admin.fxml"/>
+        <fx:include source="CreateClient.fxml"/>
     </center>
 
 </BorderPane>
