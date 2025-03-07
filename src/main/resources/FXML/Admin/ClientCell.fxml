@@ -9,8 +9,7 @@
 
 <AnchorPane prefHeight="50.0" prefWidth="750.0" styleClass="client_cell_container"
             stylesheets="@../../Styles/ClientCell.css" xmlns="http://javafx.com/javafx/23.0.1"
-            xmlns:fx="http://javafx.com/fxml/1"
-            fx:controller="com.devs.mazebank.Controllers.AdminControllers.ClientCellController">
+            xmlns:fx="http://javafx.com/fxml/1">
     <FontAwesomeIconView glyphName="USER" layoutX="31.0" layoutY="29.0" size="20" text="" AnchorPane.leftAnchor="14.0"
                          AnchorPane.topAnchor="14.0"/>
     <HBox layoutX="101.0" layoutY="-36.0" prefHeight="40.0" prefWidth="550.0" AnchorPane.leftAnchor="60.0"
