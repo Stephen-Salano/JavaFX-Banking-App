@@ -3,7 +3,6 @@ package com.devs.mazebank.Views;
 import com.devs.mazebank.Controllers.Client.TransactionCellController;
 import com.devs.mazebank.Models.Transaction;
 import javafx.fxml.FXMLLoader;
-import javafx.scene.Node;
 import javafx.scene.control.ListCell;
 
 import java.io.IOException;

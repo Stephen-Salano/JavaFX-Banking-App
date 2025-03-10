@@ -6,8 +6,10 @@ import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.SimpleObjectProperty;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Scene;
+import javafx.scene.image.Image;
 import javafx.scene.layout.AnchorPane;
 import javafx.stage.Stage;
+import org.jetbrains.annotations.NotNull;
 
 import java.io.IOException;
 
@@ -159,7 +161,7 @@ public class ViewFactory {
     ///  Loading Window
     ///  This method will take and fxml loaded scene and set it to a new scene and create a new
     ///  stage and display the window
-    private static Scene createStage(FXMLLoader loader) {
+    private static void createStage(FXMLLoader loader) {
         Scene scene = null;
         try{
             scene = new  Scene(loader.load());
@@ -168,9 +170,15 @@ public class ViewFactory {
         }
         Stage stage = new Stage();
         stage.setScene(scene);
+        // adding the icon to the stage
+        stage.getIcons().add(new Image(String.valueOf(ViewFactory.class.getResource("/Images/bank.png"))));
+        // Disable resizing of stage which is on by default
+        stage.setResizable(false);
         stage.setTitle("Maze bank");
         stage.show();
-        return scene;
+    }
+    public void closeStage(@NotNull Stage stage){
+        stage.close();
     }
 
 

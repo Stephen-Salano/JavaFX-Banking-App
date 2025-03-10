@@ -8,7 +8,8 @@ module com.devs.mazebank {
     requires javafx.fxml; // -> Allows working with fxml files for design
     requires de.jensd.fx.glyphs.fontawesome;//  -> a UI library for icons and fonts
     requires java.sql; // -> Enables Database operations
-    requires org.xerial.sqlitejdbc; //-> Provides the SQLite database driver
+    requires org.xerial.sqlitejdbc;
+    requires org.jetbrains.annotations; //-> Provides the SQLite database driver
 
     /**
     Opens: Allows reflection-based access to the `com.devs.mazebank` package for `javafx.xml`
