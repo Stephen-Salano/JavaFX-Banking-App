@@ -37,14 +37,31 @@ public class LoginController implements Initializable {
     }
 
     private void onLogin() {
-        // Get the current stage (login window) and close it
-        Stage stage = (Stage) login_btn.getScene().getWindow();
-        stage.close();
+        //Change the button text and diable it while processing
+        login_btn.setText("Logging in...");
+        login_btn.setDisable(true);
+
         ///  If the account type selected is client, we show client window
         if (Model.getInstance().getViewFactory().getLoginAccountType() == AccountType.CLIENT){
-            ///  Show client window
-            Model.getInstance().getViewFactory().showClientWindow();
+            /// Evaluate credentials
+            Model.getInstance().evaluateClientCredentials(payee_adress_field.getText(), password_field.getText());
+            /// check if client is Logged in
+            if (Model.getInstance().isLoggedIn()){
+                ///  Show client window
+                Model.getInstance().getViewFactory().showClientWindow();
+            }else {
+                /// If credentials are wrong then we reset the password and adress fields and show error
+                payee_adress_field.setText("");
+                password_field.setText("");
+                error_lbl.setText("No such Login credentials");
+
+                // Re-enable the button and reset text
+                login_btn.setText("Login");
+                login_btn.setDisable(false);
+            }
         } else {
+            Stage stage = (Stage) login_btn.getScene().getWindow();
+            stage.close();
             ///  show admin window
             Model.getInstance().getViewFactory().showAdminWindow();
         }
