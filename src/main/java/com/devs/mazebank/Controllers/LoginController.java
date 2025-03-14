@@ -48,6 +48,8 @@ public class LoginController implements Initializable {
             /// check if client is Logged in
             if (Model.getInstance().isLoggedIn()){
                 ///  Show client window
+                Stage stage = (Stage) login_btn.getScene().getWindow();
+                stage.close();
                 Model.getInstance().getViewFactory().showClientWindow();
             }else {
                 /// If credentials are wrong then we reset the password and adress fields and show error
