@@ -1,6 +1,8 @@
 package com.devs.mazebank.Models;
-
+import javafx.collections.FXCollections;
+import javafx.collections.ObservableList;
 import java.sql.*;
+import java.time.LocalDate;
 
 public class DatabaseDriver {
 //TODO: Add custom exception handling
@@ -14,7 +16,13 @@ public class DatabaseDriver {
         }
     }
 
+    // Testing Constructor
+    public DatabaseDriver(Connection conn) {
+        this.conn = conn;
+    }
+
     /// Client Section
+    /// 1. Get Client Data to allow login
     public ResultSet getClientData(String pAddress, String password) {
         ResultSet resultSet = null;
         String query = "SELECT * FROM Clients WHERE PayeeAddress = ? AND Password = ?";
@@ -38,6 +46,33 @@ public class DatabaseDriver {
             e.printStackTrace();
         }
         return resultSet;
+    }
+
+    ///  Getting Transaction Data to allow for display of Transactions in ListView
+    public ObservableList<Transaction> getTransactionsForClients(String clientPayeeAddress){
+        ObservableList<Transaction> transactionsList = FXCollections.observableArrayList();
+        ResultSet resultSet;
+        String sql = "SELECT * FROM Transactions WHERE Sender = ? OR Receiver = ?";
+       try (PreparedStatement preparedStatement = this.conn.prepareStatement(sql)){
+           preparedStatement.setString(1, clientPayeeAddress);
+           preparedStatement.setString(2, clientPayeeAddress);
+           resultSet = preparedStatement.executeQuery();
+           while (resultSet.next()){
+               String sender = resultSet.getString("Sender");
+               String reciever = resultSet.getString("Receiver");
+               double amount = resultSet.getDouble("Amount");
+               LocalDate date = LocalDate.parse(resultSet.getString("Date")); // Becuase dates stored as TEST
+               String message = resultSet.getString("Message");
+
+               // Creating a new Transaction Object
+               Transaction transaction = new Transaction(sender, reciever, amount, date, message );
+               transactionsList.add(transaction);
+           }
+
+       } catch (SQLException e){
+           e.printStackTrace();
+       }
+       return transactionsList;
     }
 
 
