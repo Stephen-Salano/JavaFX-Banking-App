@@ -4,6 +4,7 @@ import com.devs.mazebank.Controllers.Client.TransactionCellController;
 import com.devs.mazebank.Models.Transaction;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.control.ListCell;
+import javafx.scene.layout.AnchorPane;
 
 import java.io.IOException;
 
@@ -18,7 +19,7 @@ public class TransactionCellFactory extends ListCell<Transaction> {
     @Override
     protected void updateItem(Transaction transaction, boolean empty) {
         super.updateItem(transaction, empty);
-        if (empty) {
+        if (empty || transaction == null) {
             setText(null);
             setGraphic(null);
         } else {
@@ -26,8 +27,10 @@ public class TransactionCellFactory extends ListCell<Transaction> {
                 FXMLLoader loader = new FXMLLoader(getClass().getResource("/FXML/Client/TransactionCell.fxml")).load();
                 TransactionCellController controller = new TransactionCellController(transaction);
                 loader.setController(controller);
+                AnchorPane cellPane = loader.load();
+                loader.setController(controller);
                 setText(null);
-                setGraphic(loader.load());
+                setGraphic(cellPane);
             } catch (IOException e) {
                 throw new RuntimeException(e);
             }
