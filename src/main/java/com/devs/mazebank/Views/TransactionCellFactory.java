@@ -24,11 +24,15 @@ public class TransactionCellFactory extends ListCell<Transaction> {
             setGraphic(null);
         } else {
             try {
-                FXMLLoader loader = new FXMLLoader(getClass().getResource("/FXML/Client/TransactionCell.fxml")).load();
+                // Create the loader
+                FXMLLoader loader = new FXMLLoader(getClass().getResource("/FXML/Client/TransactionCell.fxml"));
+                // Create the controller with the transaction data
                 TransactionCellController controller = new TransactionCellController(transaction);
+                // Set the Controller
                 loader.setController(controller);
+                // Load the FXML
                 AnchorPane cellPane = loader.load();
-                loader.setController(controller);
+                // Set the Graphic
                 setText(null);
                 setGraphic(cellPane);
             } catch (IOException e) {
