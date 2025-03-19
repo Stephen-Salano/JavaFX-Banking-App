@@ -1,5 +1,6 @@
 package com.devs.mazebank.Controllers.Client;
 
+import com.devs.mazebank.Models.Model;
 import com.devs.mazebank.Models.Transaction;
 import de.jensd.fx.glyphs.fontawesome.FontAwesomeIconView;
 import javafx.fxml.Initializable;
@@ -20,7 +21,7 @@ public class TransactionCellController implements Initializable {
     public Label receiver_lbl;
     public Label amount_lbl;
 
-    private Transaction transaction;
+    private final Transaction transaction;
 
     public TransactionCellController(Transaction transaction) {
         this.transaction = transaction;
@@ -29,6 +30,29 @@ public class TransactionCellController implements Initializable {
 
     @Override
     public void initialize(URL url, ResourceBundle resourceBundle) {
+        // Get the clients payee address to determine transaction direction
+        String clientAddress = Model.getInstance().getClient().payeeAddressProperty().get();
+
+        // get the transaction date
+        trans_date_lbl.textProperty().bind(transaction.dateProperty().asString());
+
+        //Set Sender and reciever label
+        sender_lbl.textProperty().bind(transaction.senderAddressProperty());
+        receiver_lbl.textProperty().bind(transaction.receiverAddressProperty());
+
+        //Set the amount with dolar sign
+        amount_lbl.textProperty().bind(transaction.amountToBeSentProperty().asString());
+
+        //Show the appropriate arow icon based on whether money is coming in or going out
+        if (transaction.senderAddressProperty().get().equals(clientAddress)){
+            in_icon.setVisible(false);
+            out_icon.setVisible(true);
+
+        } else {
+            //This is an incoming Transaction
+            in_icon.setVisible(true);
+            out_icon.setVisible(false);
+        }
 
     }
 }

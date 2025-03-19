@@ -49,6 +49,7 @@ public class DatabaseDriver {
     }
 
     ///  Getting Transaction Data to allow for display of Transactions in ListView
+    /// TODO: Check if Logged
     public ObservableList<Transaction> getTransactionsForClients(String clientPayeeAddress){
         ObservableList<Transaction> transactionsList = FXCollections.observableArrayList();
         ResultSet resultSet;
