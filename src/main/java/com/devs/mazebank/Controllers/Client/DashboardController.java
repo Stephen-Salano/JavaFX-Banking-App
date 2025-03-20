@@ -1,6 +1,7 @@
 package com.devs.mazebank.Controllers.Client;
 
 import com.devs.mazebank.Models.Model;
+import com.devs.mazebank.Models.Transaction;
 import com.devs.mazebank.Views.TransactionCellFactory;
 import javafx.fxml.Initializable;
 import javafx.scene.control.*;
@@ -37,6 +38,23 @@ public class DashboardController implements Initializable {
 
         // Initialize transaction List
         initializeTransactionsList();
+
+        //Set up the UI interactions
+        initializeUI();
+    }
+
+    private void initializeUI() {
+        // Connect the send money button to the send money method
+        send_money_btn.setOnAction(e -> sendMoney());
+
+        // Add a listener to format the amount field to only accept numbers
+        amount_fld.textProperty().addListener(((observable, oldVal, newVal) ->{
+            // using Regex expressions
+            if (!newVal.matches("\\d*(\\.\\d*)?")){
+                amount_fld.setText(oldVal);
+            }
+        } ));
+
     }
 
     private void bindUserData(){
@@ -48,6 +66,13 @@ public class DashboardController implements Initializable {
         // Set the current date
         login_date.setText("Today, " + LocalDate.now());
 
+        // Get and set checking account info
+        String clientPayeeAddress = model.getClient().payeeAddressProperty().get();
+        double checkingBalance = model.getDatabaseDriver().getCheckingAccountBalance(clientPayeeAddress);
+        String checkingAccountNumber = model.getDatabaseDriver().getCheckingAccountNumber(clientPayeeAddress);
+
+        checking_balance.setText("$" + String.format("%.2f", checkingBalance));
+        checking_acc_num.setText(checkingAccountNumber);
     }
     private void initializeTransactionsList(){
         //Set the custom cell factory for transactions
@@ -61,5 +86,78 @@ public class DashboardController implements Initializable {
                 model.getDatabaseDriver().getTransactionsForClients(clientPayeeAdress)
         );
     }
+
+    private void sendMoney(){
+        // Get the client's payee Address (sender)
+        String sender = model.getClient().payeeAddressProperty().get();
+        // Get the reciever adress (reciever)
+        String reciever = payee_fld.getText();
+        // Get amount to be sent
+        double amount;
+        try{
+            amount = Double.parseDouble(amount_fld.getText());
+        } catch (NumberFormatException e){
+            // Show error message if amount is not a valid number
+            showAlert(Alert.AlertType.ERROR, "Error", "Please enter a valid amount!");
+            return;
+        }
+
+        // Get the message
+        String message = message_fld.getText();
+
+        // Validate input
+        if (reciever.isEmpty()){
+            showAlert(Alert.AlertType.ERROR, "Error", "Please enter a receiver's valid address!");
+            return;
+        }
+        if (amount <= 0){
+            showAlert(Alert.AlertType.ERROR, "Error", "Please enter an amount greater than 0!");
+        }
+
+        // Create transaction
+        boolean result = model.getDatabaseDriver().createTransaction(sender, reciever, amount, message);
+
+        if(result){
+            // Show success message
+            showAlert(Alert.AlertType.INFORMATION, "Success", "Transaction Completed successfully!");
+
+            // Clear the input fields
+            payee_fld.clear();
+            amount_fld.clear();
+            message_fld.clear();
+
+            //Refresh account information
+            updateAccountInfo();
+
+            // Refresh the Transactions list
+            initializeTransactionsList();
+
+        } else{
+            showAlert(Alert.AlertType.ERROR, "Error", "Transaction failed! Please check your balance or try again later");
+        }
+    }
+
+    ///  This method will update the account information from the client dashboard after transactions
+    private void updateAccountInfo() {
+        String clientPayeeAddress = model.getClient().payeeAddressProperty().get();
+
+        //Update checking account balance
+        double checkingBalance = model.getDatabaseDriver().getCheckingAccountBalance(clientPayeeAddress);
+        checking_balance.setText("$" + String.format("%.2f", checkingBalance));
+
+        // TODO: Implement savings account display
+        // double savingsBalance = model.getDatabaseDriver().getSavingsAccountBalance(clientPayeeAddress);
+        // savings_bal.setText("$" + String.format("%.2f", savingsBalance));
+    }
+
+    private void showAlert(Alert.AlertType alertType, String title, String content) {
+        Alert alert = new Alert(alertType);
+        alert.setTitle(title);
+        alert.setHeaderText(null);
+        alert.setContentText(content);
+        alert.showAndWait();
+    }
+
+
 
 }
