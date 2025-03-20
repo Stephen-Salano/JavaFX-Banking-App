@@ -53,7 +53,7 @@ public class DatabaseDriver {
     public ObservableList<Transaction> getTransactionsForClients(String clientPayeeAddress){
         ObservableList<Transaction> transactionsList = FXCollections.observableArrayList();
         ResultSet resultSet;
-        String sql = "SELECT * FROM Transactions WHERE Sender = ? OR Receiver = ?";
+        String sql = "SELECT * FROM Transactions WHERE Sender = ? OR Receiver = ? ORDER BY Date DESC";
        try (PreparedStatement preparedStatement = this.conn.prepareStatement(sql)){
            preparedStatement.setString(1, clientPayeeAddress);
            preparedStatement.setString(2, clientPayeeAddress);
@@ -77,6 +77,125 @@ public class DatabaseDriver {
     }
 
 
+    public boolean createTransaction(String sender, String reciever, double amount, String message) {
+        // check if sender has sufficient funds
+        if (!hasSufficientFunds(sender, amount)){
+            return false;
+        }
+
+        // Begin transaction
+        try{
+            // Set auto-commit to false to handle transaction manually
+            conn.setAutoCommit(false);
+
+            // 1. Create a new transaction record
+            String createTransactionSQL = "INSERT INTO Transactions(Sender, Receiver, Amount, Date, Message) " +
+                    "VALUES(?, ?, ?, ?, ?)";
+            try(PreparedStatement preparedStatement = conn.prepareStatement(createTransactionSQL)){
+                preparedStatement.setString(1, sender);
+                preparedStatement.setString(2, reciever);
+                preparedStatement.setDouble(3, amount);
+                preparedStatement.setString(4, LocalDate.now().toString());
+                preparedStatement.setString(5, message);
+
+                int rowsAffected = preparedStatement.executeUpdate();
+                if (rowsAffected !=1){
+                    conn.rollback();
+                    return false;
+                }
+            } catch (SQLException e) {
+                throw new RuntimeException(e);
+            }
+            // 2. Update senders balance (deduct amount)
+            if (!updateBalance(sender, -amount)){
+                conn.rollback();
+                return false;
+            }
+            // 3. Update reciever's balance (add amount)
+            if (!updateBalance(reciever, amount)){
+                conn.rollback();
+                return false;
+            }
+
+            // Commit transaction if all operations successful
+            conn.commit();
+            conn.setAutoCommit(true);
+            return true;
+        } catch (SQLException e){
+            try{
+                conn.rollback();
+                conn.setAutoCommit(true);
+            } catch (SQLException ex){
+                ex.printStackTrace();
+            }
+            e.printStackTrace();
+            return false;
+        }
+    }
+
+    ///  After a transaction event has taken place we update the Balance
+    private boolean updateBalance(String payeeAddress, double amount) {
+        String query = "UPDATE CheckingAccounts SET Balance = Balance + ? WHERE Owner = ?";
+        try(PreparedStatement preparedStatement = this.conn.prepareStatement(query)){
+            preparedStatement.setDouble(1, amount);
+            preparedStatement.setString(2, payeeAddress);
+
+            int rowsAffected = preparedStatement.executeUpdate();
+            return rowsAffected ==1;
+        } catch (SQLException e){
+            e.printStackTrace();
+            return false;
+        }
+    }
+
+    ///  Checking if the sender has enough funds to send money
+    private boolean hasSufficientFunds(String payeeAddress, double amount) {
+        String query = "SELECT Balance FROM CheckingAccounts WHERE Owner = ?";
+        try(PreparedStatement preparedStatement = this.conn.prepareStatement(query)){
+            preparedStatement.setString(1, payeeAddress);
+            ResultSet resultSet = preparedStatement.executeQuery();
+
+            if (resultSet.next()){
+                double balance = resultSet.getDouble("Balance");
+                return balance >= amount;
+            }
+
+        }catch (SQLException e){
+            e.printStackTrace();
+        }
+        return false;
+    }
+
+    /// Get checking account balance for a client
+    public double getCheckingAccountBalance(String payeeAddress){
+        String query = "SELECT Balance FROM CheckingAccounts WHERE Owner = ?";
+        try(PreparedStatement preparedStatement = this.conn.prepareStatement(query)){
+            preparedStatement.setString(1, payeeAddress);
+            ResultSet resultSet = preparedStatement.executeQuery();
+
+            if (resultSet.next()){
+                return resultSet.getDouble("Balance");
+            }
+        } catch (SQLException e){
+            e.printStackTrace();
+        }
+        return 0.0;
+    }
+
+    //Get checking account number for a client
+    public String getCheckingAccountNumber(String payeeAddress){
+        String query = "SELECT AccountNumber FROM CheckingAccounts WHERE Owner = ?";
+        try(PreparedStatement preparedStatement = this.conn.prepareStatement(query)){
+            preparedStatement.setString(1, payeeAddress);
+            ResultSet resultSet = preparedStatement.executeQuery();
+            if (resultSet.next()){
+                return resultSet.getString("AccountNumber");
+            }
+        } catch (SQLException e){
+            e.printStackTrace();
+        }
+        return "";
+    }
 
     ///  Admin Section
 

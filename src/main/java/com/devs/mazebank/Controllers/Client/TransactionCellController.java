@@ -45,6 +45,8 @@ public class TransactionCellController implements Initializable {
 
         //Show the appropriate arow icon based on whether money is coming in or going out
         if (transaction.senderAddressProperty().get().equals(clientAddress)){
+            // TODO: both icons should be visible but incoming transaction icon shoul be green and vice versa
+
             in_icon.setVisible(false);
             out_icon.setVisible(true);
 
