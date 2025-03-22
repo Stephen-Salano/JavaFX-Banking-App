@@ -136,7 +136,7 @@ public class DatabaseDriver {
 
     ///  After a transaction event has taken place we update the Balance
     private boolean updateBalance(String payeeAddress, double amount) {
-        String query = "UPDATE CheckingAccounts SET Balance = Balance + ? WHERE Owner = ? FOR UPDATE";
+        String query = "UPDATE CheckingAccounts SET Balance = Balance + ? WHERE Owner = ?";
         try(PreparedStatement preparedStatement = this.conn.prepareStatement(query)){
             preparedStatement.setDouble(1, amount);
             preparedStatement.setString(2, payeeAddress);
@@ -151,7 +151,7 @@ public class DatabaseDriver {
 
     ///  Checking if the sender has enough funds to send money
     private boolean hasSufficientFunds(String payeeAddress, double amount) {
-        String query = "SELECT Balance FROM CheckingAccounts WHERE Owner = ? FOR UPDATE"; // Locks the row untill the transaction completes preventing concurrent modifications
+        String query = "SELECT Balance FROM CheckingAccounts WHERE Owner = ?"; // Locks the row untill the transaction completes preventing concurrent modifications
         try(PreparedStatement preparedStatement = this.conn.prepareStatement(query)){
             preparedStatement.setString(1, payeeAddress);
             ResultSet resultSet = preparedStatement.executeQuery();

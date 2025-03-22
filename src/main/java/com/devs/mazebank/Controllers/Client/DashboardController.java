@@ -3,12 +3,15 @@ package com.devs.mazebank.Controllers.Client;
 import com.devs.mazebank.Models.Model;
 import com.devs.mazebank.Models.Transaction;
 import com.devs.mazebank.Views.TransactionCellFactory;
+import javafx.beans.Observable;
+import javafx.collections.ObservableList;
 import javafx.fxml.Initializable;
 import javafx.scene.control.*;
 import javafx.scene.text.Text;
 
 import java.net.URL;
 import java.time.LocalDate;
+import java.util.List;
 import java.util.ResourceBundle;
 
 public class DashboardController implements Initializable {
@@ -41,6 +44,8 @@ public class DashboardController implements Initializable {
 
         //Set up the UI interactions
         initializeUI();
+
+        updateTransactionSummary();
     }
 
     private void initializeUI() {
@@ -144,6 +149,8 @@ public class DashboardController implements Initializable {
 
             // Refresh the Transactions list
             initializeTransactionsList();
+            // Add the expenses
+            updateTransactionSummary();
 
         } else{
             showAlert(Alert.AlertType.ERROR, "Error", "Transaction failed! Please check your balance or try again later");
@@ -158,9 +165,36 @@ public class DashboardController implements Initializable {
         double checkingBalance = model.getDatabaseDriver().getCheckingAccountBalance(clientPayeeAddress);
         checking_balance.setText("$" + String.format("%.2f", checkingBalance));
 
-        // TODO: Implement savings account display
-        // double savingsBalance = model.getDatabaseDriver().getSavingsAccountBalance(clientPayeeAddress);
-        // savings_bal.setText("$" + String.format("%.2f", savingsBalance));
+        // Update savings account balance after transactions
+         double savingsBalance = model.getDatabaseDriver().getSavingsAccountBalance(clientPayeeAddress);
+         savings_bal.setText("$" + String.format("%.2f", savingsBalance));
+
+         // Update the income and expenses info on the dashboard
+        updateTransactionSummary();
+    }
+
+    /// This method will check expenses vs income in Dashboard section
+    public void updateTransactionSummary(){
+        // get the client payeeAddress
+        String clientAddress = model.getClient().payeeAddressProperty().get();
+        // Get the transactions for the specific clientPayeeAdress passed
+        ObservableList<Transaction> clientTransactions = model.getDatabaseDriver().getTransactionsForClients(clientAddress);
+
+        // expenses
+        double expenses = clientTransactions.stream()
+                .filter(t -> t.senderAddressProperty().get().equals(clientAddress))
+                .mapToDouble(t -> t.amountToBeSentProperty().get())
+                .sum();
+        // Binding expenses to dashboard view
+        expense_lbl.setText("$" + String.format("%.2f", expenses));
+
+        // income
+        double income = clientTransactions.stream()
+                .filter(t -> t.receiverAddressProperty().get().equals(clientAddress))
+                .mapToDouble(t -> t.amountToBeSentProperty().get())
+                .sum();
+        income_lbl.setText("$" + String.format("%.2f", income));
+
     }
 
     private void showAlert(Alert.AlertType alertType, String title, String content) {
