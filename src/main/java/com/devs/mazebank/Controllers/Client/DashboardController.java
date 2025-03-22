@@ -70,9 +70,22 @@ public class DashboardController implements Initializable {
         String clientPayeeAddress = model.getClient().payeeAddressProperty().get();
         double checkingBalance = model.getDatabaseDriver().getCheckingAccountBalance(clientPayeeAddress);
         String checkingAccountNumber = model.getDatabaseDriver().getCheckingAccountNumber(clientPayeeAddress);
-
         checking_balance.setText("$" + String.format("%.2f", checkingBalance));
         checking_acc_num.setText(checkingAccountNumber);
+
+        // Get and Set Savings Account info
+        double savingsBalance = model.getDatabaseDriver().getSavingsAccountBalance(clientPayeeAddress);
+        String savingsAccountNumber = model.getDatabaseDriver().getSavingsAccountNumber(clientPayeeAddress);
+        savings_bal.setText("$" + String.format("%.2f", savingsBalance));
+        savings_acc_num.setText(savingsAccountNumber);
+
+        /*
+        TODO: When implementing the Transfer from Savings to checking and vice versa remember to reload the
+        savings account Balance
+
+         */
+
+
     }
     private void initializeTransactionsList(){
         //Set the custom cell factory for transactions
