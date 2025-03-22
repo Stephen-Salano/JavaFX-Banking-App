@@ -107,7 +107,8 @@ public class DatabaseDriver {
                 throw new RuntimeException(e);
             }
             // 2. Update senders balance (deduct amount)
-            if (!updateBalance(sender, -amount)){
+            // This prevents a scenario where money is deducted but not recieved
+            if (!updateBalance(sender, -amount) || !updateBalance(reciever, amount)){
                 conn.rollback();
                 return false;
             }
@@ -135,7 +136,7 @@ public class DatabaseDriver {
 
     ///  After a transaction event has taken place we update the Balance
     private boolean updateBalance(String payeeAddress, double amount) {
-        String query = "UPDATE CheckingAccounts SET Balance = Balance + ? WHERE Owner = ?";
+        String query = "UPDATE CheckingAccounts SET Balance = Balance + ? WHERE Owner = ? FOR UPDATE";
         try(PreparedStatement preparedStatement = this.conn.prepareStatement(query)){
             preparedStatement.setDouble(1, amount);
             preparedStatement.setString(2, payeeAddress);
@@ -150,7 +151,7 @@ public class DatabaseDriver {
 
     ///  Checking if the sender has enough funds to send money
     private boolean hasSufficientFunds(String payeeAddress, double amount) {
-        String query = "SELECT Balance FROM CheckingAccounts WHERE Owner = ?";
+        String query = "SELECT Balance FROM CheckingAccounts WHERE Owner = ? FOR UPDATE"; // Locks the row untill the transaction completes preventing concurrent modifications
         try(PreparedStatement preparedStatement = this.conn.prepareStatement(query)){
             preparedStatement.setString(1, payeeAddress);
             ResultSet resultSet = preparedStatement.executeQuery();
@@ -187,6 +188,39 @@ public class DatabaseDriver {
         String query = "SELECT AccountNumber FROM CheckingAccounts WHERE Owner = ?";
         try(PreparedStatement preparedStatement = this.conn.prepareStatement(query)){
             preparedStatement.setString(1, payeeAddress);
+            ResultSet resultSet = preparedStatement.executeQuery();
+            if (resultSet.next()){
+                return resultSet.getString("AccountNumber");
+            }
+        } catch (SQLException e){
+            e.printStackTrace();
+        }
+        return "";
+    }
+
+    //Get Savings Account Balance for a client
+    public double getSavingsAccountBalance(String payeeAddress){
+        // create the query to query database
+        String query = "SELECT Balance FROM SavingsAccounts WHERE Owner = ?";
+
+        try(PreparedStatement preparedStatement = this.conn.prepareStatement(query)){
+            preparedStatement.setString(1, payeeAddress);
+            ResultSet resultSet = preparedStatement.executeQuery();
+            if (resultSet.next()) {
+                return resultSet.getDouble("Balance");
+            }
+        } catch (SQLException e){
+            e.printStackTrace();
+        }
+        return 0.0;
+    }
+
+    public String getSavingsAccountNumber(String payeeAddress){
+        String query = "SELECT AccountNumber FROM SavingsAccounts WHERE Owner = ?";
+
+        try(PreparedStatement preparedStatement = this.conn.prepareStatement(query)){
+            preparedStatement.setString(1, payeeAddress);
+
             ResultSet resultSet = preparedStatement.executeQuery();
             if (resultSet.next()){
                 return resultSet.getString("AccountNumber");
