@@ -5,6 +5,7 @@ import com.devs.mazebank.Models.Transaction;
 import de.jensd.fx.glyphs.fontawesome.FontAwesomeIconView;
 import javafx.fxml.Initializable;
 import javafx.scene.control.Label;
+import javafx.scene.paint.Color;
 
 import java.net.URL;
 import java.util.ResourceBundle;
@@ -47,13 +48,17 @@ public class TransactionCellController implements Initializable {
         if (transaction.senderAddressProperty().get().equals(clientAddress)){
             // TODO: both icons should be visible but incoming transaction icon shoul be green and vice versa
 
-            in_icon.setVisible(false);
+            in_icon.setVisible(true);
+            in_icon.setFill(Color.GRAY);
             out_icon.setVisible(true);
+            out_icon.setFill(Color.RED);
 
         } else {
             //This is an incoming Transaction
             in_icon.setVisible(true);
-            out_icon.setVisible(false);
+            in_icon.setFill(Color.GREEN);
+            out_icon.setVisible(true);
+            out_icon.setFill(Color.GRAY);
         }
 
     }
