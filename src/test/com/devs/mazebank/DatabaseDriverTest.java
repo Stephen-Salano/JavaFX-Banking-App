@@ -1,5 +1,6 @@
 package com.devs.mazebank;
 
+import com.devs.mazebank.Models.CheckingAccount;
 import com.devs.mazebank.Models.DatabaseDriver;
 import com.devs.mazebank.Models.Transaction;
 import javafx.collections.ObservableList;
@@ -43,6 +44,24 @@ class DatabaseDriverTest {
         }
 
         Assertions.assertNotNull(transactions, "Transactions list should not be null");
+    }
+
+    @Test
+    void getCheckingAccountDetails(){
+        String testClient = "@bBaker1";
+        ObservableList<CheckingAccount> checkingAccounts = databaseDriver.getCheckingAccountInfo(testClient);
+
+        System.out.println("Checking account for " + testClient);
+        for (CheckingAccount c: checkingAccounts){
+            System.out.println(
+                    "AccounrNumber: " + c.accountNumberProperty().get() +
+                    ", Balance: " + c.balanceProperty().get() +
+                     ", Transaction limit: " + c.transactionLimitProperty().get() +
+                     ", Owner" + c.ownerProperty().get()
+            );
+        }
+        Assertions.assertNotNull(checkingAccounts, "Checking account info should not be null");
+
     }
 
     @AfterAll

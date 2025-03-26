@@ -13,7 +13,6 @@ public class TransactionController implements Initializable {
     public ListView transactions_listview;
     ///  instantiating the singleton class to fetch the initializeTransactions method
     private Model model;
-    private DashboardController dashboardController;
 
     @Override
     public void initialize(URL url, ResourceBundle resourceBundle) {

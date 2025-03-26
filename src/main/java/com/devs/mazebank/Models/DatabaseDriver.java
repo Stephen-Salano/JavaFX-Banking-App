@@ -76,6 +76,57 @@ public class DatabaseDriver {
        return transactionsList;
     }
 
+    // Get Checking account info to bind to Account section
+    public ObservableList<CheckingAccount> getCheckingAccountInfo (String payeeAddress) {
+        ObservableList<CheckingAccount> checkingAccountsInfoList = FXCollections.observableArrayList();
+        ResultSet resultSet;
+        String query = "SELECT * FROM CheckingAccounts WHERE Owner = ?";
+        try(PreparedStatement preparedStatement = this.conn.prepareStatement(query)){
+            preparedStatement.setString(1, payeeAddress);
+            resultSet = preparedStatement.executeQuery();
+            while(resultSet.next()){
+                String owner = resultSet.getString("Owner");
+                String accountNumber =  resultSet.getString("AccountNumber");
+                int transactionLimits = (int) resultSet.getDouble("TransactionLimit");
+                double balance = resultSet.getDouble("Balance");
+
+                CheckingAccount checkingAccount = new CheckingAccount(
+                    owner, accountNumber, balance, transactionLimits
+                );
+                checkingAccountsInfoList.add(checkingAccount);
+
+            }
+        } catch (SQLException e){
+            e.printStackTrace();
+        }
+         return checkingAccountsInfoList;
+    }
+
+    // Get Savings account info to bind to Account section
+    public ObservableList<SavingsAccount> getSavingsAccountInfo (String payeeAddress) {
+        ObservableList<SavingsAccount> savingsAccountList = FXCollections.observableArrayList();
+        ResultSet resultSet;
+        String query = "SELECT * FROM SavingsAccounts WHERE Owner = ?";
+        try(PreparedStatement preparedStatement = this.conn.prepareStatement(query)){
+            preparedStatement.setString(1, payeeAddress);
+            resultSet = preparedStatement.executeQuery();
+            while(resultSet.next()){
+                String owner = resultSet.getString("Owner");
+                String accountNumber =  resultSet.getString("AccountNumber");
+                int transactionLimits  = resultSet.getInt("WithdrawalLimit");
+                double balance = resultSet.getDouble("Balance");
+
+                SavingsAccount savingsAccount = new SavingsAccount(
+                        owner, accountNumber, balance, transactionLimits
+                );
+                savingsAccountList.add(savingsAccount);
+
+            }
+        } catch (SQLException e){
+            e.printStackTrace();
+        }
+        return savingsAccountList;
+    }
 
     public boolean createTransaction(String sender, String reciever, double amount, String message) {
         // check if sender has sufficient funds
