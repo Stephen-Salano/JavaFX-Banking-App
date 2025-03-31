@@ -185,6 +185,108 @@ public class DatabaseDriver {
         }
     }
 
+    // In DatabaseDriver.java
+    public boolean transferBetweenAccounts(String owner, double amount, String fromAccountType) {
+        // First we validate if the transfer is possible
+        if (!validateTransfer(owner, amount, fromAccountType)) {
+            System.out.println("Transfer validation failed");
+            return false;
+        }
+        try {
+            conn.setAutoCommit(false);
+
+            // Determine account types
+            String toAccountType = (fromAccountType.equals("CheckingAccounts")) ? "SavingsAccounts" : "CheckingAccounts";
+
+            // 1. Create transaction record
+            String createTransactionQuery = "INSERT INTO Transactions(" +
+                    "Sender, Receiver, Amount, Date, Message) " +
+                    "VALUES(?, ?, ?, ?, ?)";
+
+            try(PreparedStatement preparedStatement = this.conn.prepareStatement(createTransactionQuery)) {
+                preparedStatement.setString(1, owner);  // Same owner
+                preparedStatement.setString(2, owner);  // Same owner
+                preparedStatement.setDouble(3, amount);
+                preparedStatement.setString(4, LocalDate.now().toString());
+                preparedStatement.setString(5, "Inter-account transfer");
+
+                int rowsAffected = preparedStatement.executeUpdate();
+                if (rowsAffected != 1) {
+                    conn.rollback();
+                    return false;
+                }
+            }
+
+            // 2. Deduct from source account
+            if (!updateAccountBalance(owner, -amount, fromAccountType)) {
+                conn.rollback();
+                return false;
+            }
+
+            // 3. Add to destination account
+            if (!updateAccountBalance(owner, amount, toAccountType)) {
+                conn.rollback();
+                return false;
+            }
+
+            conn.commit();
+            conn.setAutoCommit(true);
+            return true;
+
+        } catch (SQLException e) {
+            try {
+                conn.rollback();
+                conn.setAutoCommit(true);
+            } catch (SQLException ex) {
+                ex.printStackTrace();
+            }
+            e.printStackTrace();
+            return false;
+        }
+    }
+
+    private boolean updateAccountBalance(String payeeAddress, double amount, String accountType) {
+        String query = (accountType.equals("CheckingAccounts"))
+                ? "UPDATE CheckingAccounts SET Balance = Balance + ? WHERE Owner = ?"
+                : "UPDATE SavingsAccounts SET Balance = Balance + ? WHERE Owner = ?";
+
+        try(PreparedStatement preparedStatement = this.conn.prepareStatement(query)){
+            preparedStatement.setDouble(1, amount);
+            preparedStatement.setString(2, payeeAddress);
+
+            int rowsAffected = preparedStatement.executeUpdate();
+            return rowsAffected == 1;
+        } catch (SQLException e){
+            e.printStackTrace();
+            return false;
+        }
+    }
+
+    private boolean validateTransfer(String payeeAddress, double amount, String accountType) {
+
+        System.out.println("Validating transfer from " + accountType + " for " + payeeAddress + ", amount: " + amount);
+        // check account specific limits
+        if (accountType.equals("CheckingAccounts")){
+            // Check transaction limit logic
+            if (hasDailyTransactionLimitExceeded(payeeAddress)){
+                return false;
+            }
+        } else if (accountType.equals("SavingsAccounts")) {
+            // Check withdrawal limit logic
+            if (hasExceededWithdrawalLimit(payeeAddress, amount)){
+                return false;
+            }
+        }
+        return hasSufficientFunds(payeeAddress, amount, accountType);
+    }
+
+    private boolean hasExceededWithdrawalLimit(String payeeAddress, double amount) {
+        return false;
+    }
+
+    private boolean hasDailyTransactionLimitExceeded(String payeeAddress) {
+            return false;
+    }
     ///  After a transaction event has taken place we update the Balance
     private boolean updateBalance(String payeeAddress, double amount) {
         String query = "UPDATE CheckingAccounts SET Balance = Balance + ? WHERE Owner = ?";
@@ -201,8 +303,11 @@ public class DatabaseDriver {
     }
 
     ///  Checking if the sender has enough funds to send money
-    private boolean hasSufficientFunds(String payeeAddress, double amount) {
-        String query = "SELECT Balance FROM CheckingAccounts WHERE Owner = ?"; // Locks the row untill the transaction completes preventing concurrent modifications
+    private boolean hasSufficientFunds(String payeeAddress, double amount, String accountType) {
+        String query = (accountType.equals("CheckingAccounts"))
+                ? "SELECT Balance FROM CheckingAccounts WHERE Owner = ?"
+                : "SELECT Balance FROM SavingsAccounts WHERE Owner = ?";
+
         try(PreparedStatement preparedStatement = this.conn.prepareStatement(query)){
             preparedStatement.setString(1, payeeAddress);
             ResultSet resultSet = preparedStatement.executeQuery();
@@ -216,6 +321,11 @@ public class DatabaseDriver {
             e.printStackTrace();
         }
         return false;
+    }
+
+    private boolean hasSufficientFunds(String payeeAddress, double amount) {
+        // This should check just the checking account balance by default
+        return hasSufficientFunds(payeeAddress, amount, "CheckingAccounts");
     }
 
     /// Get checking account balance for a client

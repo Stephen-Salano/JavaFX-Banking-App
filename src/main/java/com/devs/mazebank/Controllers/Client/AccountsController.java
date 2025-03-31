@@ -5,6 +5,7 @@ import com.devs.mazebank.Models.Model;
 import com.devs.mazebank.Models.SavingsAccount;
 import javafx.collections.ObservableList;
 import javafx.fxml.Initializable;
+import javafx.scene.control.Alert;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.control.TextField;
@@ -34,6 +35,9 @@ public class AccountsController implements Initializable {
 
         loadCheckingAccountDetails();
         loadSavingsAccountDetails();
+
+        transfer_to_checkings_btn.setOnAction(e -> tranferToCheckings());
+        transfer_to_savings_btn.setOnAction(e -> transferToSavings());
     }
 
     public void loadCheckingAccountDetails(){
@@ -42,14 +46,13 @@ public class AccountsController implements Initializable {
 
         // get the client checking account details
         ObservableList<CheckingAccount> clientAccountDetails = model.getDatabaseDriver().getCheckingAccountInfo(clientPayeeAddress);
-        // Setting checking Account Details details from the database
+        // Setting checking Account Details from the database
         for(CheckingAccount checkingAccount: clientAccountDetails){
             check_acc_num.setText(checkingAccount.accountNumberProperty().get());
             transaction_limit.setText(String.valueOf(checkingAccount.transactionLimitProperty().get()));
             check_acc_date.setText(String.valueOf(model.getClient().dateCreatedProperty().get()));
             check_acc_bal.setText(String.valueOf(checkingAccount.balanceProperty().get()));
         }
-
     }
     public void loadSavingsAccountDetails(){
 
@@ -67,4 +70,81 @@ public class AccountsController implements Initializable {
             savings_acc_bal.setText(String.valueOf(savingsAccount.balanceProperty().get()));
         }
     }
+
+    public void transferToSavings(){
+        String amountStr = amount_to_savings.getText();
+        double amount = validateAndParseAmount(amountStr);
+
+        if (amount > 0){
+            boolean success = model.getDatabaseDriver().transferBetweenAccounts(
+                    model.getClient().payeeAddressProperty().get(),
+                    amount,
+                    "CheckingAccounts"
+            );
+
+            if (success){
+                showSuccessAlert("Transfer Successful", "Funds transferred to Savings account");
+                refreshAccountDetails();
+            } else{
+                showErrorAlert("Transfer Failed","Unable to complete transfer. Check your balance and limits");
+            }
+        }
+    }
+
+    private void showErrorAlert(String title, String content) {
+        Alert alert = new Alert(Alert.AlertType.ERROR);
+        alert.setTitle(title);
+        alert.setHeaderText(null);
+        alert.setContentText(content);
+        alert.showAndWait();
+    }
+
+    private void showSuccessAlert(String title, String content) {
+        Alert alert = new Alert(Alert.AlertType.INFORMATION);
+        alert.setTitle(title);
+        alert.setHeaderText(null);
+        alert.setContentText(content);
+        alert.showAndWait();
+    }
+
+    private void tranferToCheckings(){
+        String amountStr = ammount_to_checkings.getText();
+        double amount = validateAndParseAmount(amountStr);
+
+        if (amount > 0){
+            boolean success = model.getDatabaseDriver().transferBetweenAccounts(
+                    model.getClient().payeeAddressProperty().get(),
+                    amount,
+                    "SavingsAccounts"
+            );
+
+            if (success){
+                showSuccessAlert("Transfer Successful","Funds transferred to Checking Account");
+                refreshAccountDetails();
+            } else{
+                showErrorAlert("Transfer Failed", "Unable to complete transfer. Check your balance and limits.");
+            }
+        }
+    }
+
+    private void refreshAccountDetails() {
+        loadSavingsAccountDetails();
+        loadCheckingAccountDetails();
+    }
+
+    private double validateAndParseAmount(String amountStr) {
+        try{
+            double amount = Double.parseDouble(amountStr);
+            if (amount <= 0){
+                showErrorAlert("Invalid Amount", "Please enter a positive amount");
+                return -1;
+            }
+            return amount;
+        } catch (NumberFormatException e){
+            showErrorAlert("Invalid Input", "Please enter a valid number");
+            return -1;
+        }
+    }
+
+
 }
