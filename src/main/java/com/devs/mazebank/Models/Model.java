@@ -1,7 +1,10 @@
 package com.devs.mazebank.Models;
 
 import com.devs.mazebank.Views.AccountType;
+import com.devs.mazebank.Views.ClientMenuOptions;
 import com.devs.mazebank.Views.ViewFactory;
+import javafx.scene.control.Alert;
+import javafx.scene.control.ButtonType;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -103,5 +106,17 @@ public class Model {
             e.printStackTrace();
         }
     }
+
+    public void logout() {
+            // Reset the client data
+            this.client = new Client("", "", "", null, null, null);
+            // Set the logged in status to false
+            this.isLoggedIn = false;
+            // Reset Ui selections
+            this.viewFactory.getClientSelectedMenuItem().set(ClientMenuOptions.DASHBOARD);
+            // Clear client views to ensure fresh data on next login
+            this.viewFactory.clearClientViews();
+    }
+
 
 }

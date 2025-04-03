@@ -203,4 +203,12 @@ public class ViewFactory {
         }
         return depositView;
     }
+
+
+    // if any views are loaded this will clear it
+    public void clearClientViews() {
+        this.dashboardView = null;
+        this.transactionsView = null;
+        this.accountsView = null;
+    }
 }
